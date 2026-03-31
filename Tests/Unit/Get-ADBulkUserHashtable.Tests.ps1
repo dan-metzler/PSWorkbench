@@ -2,6 +2,9 @@ Describe "Get-ADBulkUserHashtable" {
     BeforeAll {
         . "$PSScriptRoot\..\..\Source\Public\Get-ADBulkUserHashtable.ps1"
 
+        # Stubs allow Pester to mock these without requiring the ActiveDirectory module
+        function Get-ADUser { }
+
         Mock Write-Warning {}
 
         # Shared factory - builds a minimal AD user object with attributes needed for matching
