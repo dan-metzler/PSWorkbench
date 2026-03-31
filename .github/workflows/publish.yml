@@ -21,6 +21,10 @@ jobs:
         with:
           fetch-depth: 0  # required so git describe can see tags
 
+      - name: Install RSAT Active Directory
+        shell: pwsh
+        run: Add-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0
+
       - name: Install build dependencies
         shell: pwsh
         run: .\Install-Requirements.ps1
