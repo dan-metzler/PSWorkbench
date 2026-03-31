@@ -14,6 +14,10 @@ function Resolve-ADGroupMember {
         Array of Active Directory group identities (names, distinguished names, or SIDs) for which to retrieve membership
         information. Supports pipeline input and processes multiple groups efficiently with cross-domain member resolution.
 
+    .PARAMETER ADGlobalCatalog
+        Global catalog server for cross-domain member resolution. Used as a fallback when a member object cannot be found
+        in the local domain.
+
     .EXAMPLE
         Resolve-ADGroupMember -Identity "Domain-SecurityGroup-Name"
 

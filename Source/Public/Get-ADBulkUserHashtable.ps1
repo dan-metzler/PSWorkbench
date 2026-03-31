@@ -17,6 +17,9 @@ function Get-ADBulkUserHashtable {
         whitespace to DisplayName, and everything else to SamAccountName. Mixed input lists are fully supported in Auto mode.
         Note: EmployeeID and Mail are not in the default Get-ADUser property set - include them via -Properties if needed.
 
+    .PARAMETER Server
+        Active Directory server to target for the primary search. When omitted, the default domain controller is used.
+
     .PARAMETER ADGlobalCatalog
         Global catalog server and port for backup domain searches when users are not found in the default domain.
 
