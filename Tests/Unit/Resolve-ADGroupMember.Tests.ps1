@@ -2,10 +2,8 @@ Describe "Resolve-ADGroupMember" {
     BeforeAll {
         . "$PSScriptRoot\..\..\Source\Public\Resolve-ADGroupMember.ps1"
 
-        # Import the AD module so the catch block type literal resolves.
-        # Stubs are still needed so Pester can mock the commands in this scope.
-        Import-Module ActiveDirectory -ErrorAction SilentlyContinue
-
+        # Stubs allow Pester to mock these without requiring the ActiveDirectory module.
+        # Parameters must be declared so ParameterFilter assertions can inspect splatted calls.
         function Get-ADGroup {
             param(
                 [string]$Identity,

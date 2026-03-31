@@ -59,11 +59,13 @@ function Resolve-ADGroupMember {
             try {
                 Get-ADObject $Member
             }
-            catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
-                Get-ADObject $Member -Server $ADGlobalCatalog
-            }
             catch {
-                Write-Error "Error finding $Member in Root Global Domains"
+                if ($_.Exception.GetType().FullName -eq 'Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException') {
+                    Get-ADObject $Member -Server $ADGlobalCatalog
+                }
+                else {
+                    Write-Error "Error finding $Member in Root Global Domains"
+                }
             }
         }
     }
