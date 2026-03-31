@@ -2,9 +2,22 @@ Describe "Resolve-ADGroupMember" {
     BeforeAll {
         . "$PSScriptRoot\..\..\Source\Public\Resolve-ADGroupMember.ps1"
 
-        # Stubs allow Pester to mock these without requiring the ActiveDirectory module
-        function Get-ADGroup { }
-        function Get-ADObject { }
+        # Import the AD module so the catch block type literal resolves.
+        # Stubs are still needed so Pester can mock the commands in this scope.
+        Import-Module ActiveDirectory -ErrorAction SilentlyContinue
+
+        function Get-ADGroup {
+            param(
+                [string]$Identity,
+                [string[]]$Properties
+            )
+        }
+        function Get-ADObject {
+            param(
+                [string]$Identity,
+                [string]$Server
+            )
+        }
     }
 
     Context "Parameter Validation" {

@@ -2,8 +2,15 @@ Describe "Get-ADBulkUserHashtable" {
     BeforeAll {
         . "$PSScriptRoot\..\..\Source\Public\Get-ADBulkUserHashtable.ps1"
 
-        # Stubs allow Pester to mock these without requiring the ActiveDirectory module
-        function Get-ADUser { }
+        # Stub allows Pester to mock Get-ADUser without requiring the ActiveDirectory module.
+        # Parameters must be declared so ParameterFilter assertions can inspect splatted calls.
+        function Get-ADUser {
+            param(
+                [string]$LDAPFilter,
+                [string[]]$Properties,
+                [string]$Server
+            )
+        }
 
         Mock Write-Warning {}
 
