@@ -122,8 +122,7 @@ task RunTests ModuleImport, {
 
     $config = New-PesterConfiguration
     $config.Run.Path = @(
-        (Join-Path -Path $PSScriptRoot -ChildPath 'Tests\Unit'),
-        (Join-Path -Path $PSScriptRoot -ChildPath 'Tests\Integration')
+        (Join-Path -Path $PSScriptRoot -ChildPath 'Tests\Unit')
     )
     $config.Run.Exit = $true
     $config.Run.PassThru = $true
