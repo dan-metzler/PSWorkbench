@@ -40,7 +40,7 @@ Import-Module InvokeBuild
 # Shared across all tasks to avoid redundant module discovery and imports.
 # Populated by the ModuleImport task and consumed by downstream tasks.
 
-$script:moduleName   = $null
+$script:moduleName = $null
 $script:pesterResult = $null
 
 # ============================================================================
@@ -125,8 +125,8 @@ task RunTests ModuleImport, {
         (Join-Path -Path $PSScriptRoot -ChildPath 'Tests\Unit'),
         (Join-Path -Path $PSScriptRoot -ChildPath 'Tests\Integration')
     )
-    $config.Run.Exit      = $true
-    $config.Run.PassThru  = $true
+    $config.Run.Exit = $true
+    $config.Run.PassThru = $true
     $config.Output.Verbosity = 'Detailed'
 
     $script:pesterResult = Invoke-Pester -Configuration $config
@@ -139,10 +139,10 @@ task RunTests ModuleImport, {
 # recent Pester run. Depends on RunTests to populate $script:pesterResult.
 
 task UpdateTestBadge RunTests, {
-    $readmePath  = "$PSScriptRoot\README.md"
+    $readmePath = "$PSScriptRoot\README.md"
     $passedCount = $script:pesterResult.PassedCount
-    $content     = Get-Content -Path $readmePath -Raw
-    $content     = $content -replace '\[tests\]:https://img\.shields\.io/badge/tests-[^-]+-brightgreen', "[tests]:https://img.shields.io/badge/tests-$passedCount%20passing-brightgreen"
+    $content = Get-Content -Path $readmePath -Raw
+    $content = $content -replace '\[tests\]:https://img\.shields\.io/badge/tests-[^-]+-brightgreen', "[tests]:https://img.shields.io/badge/tests-$passedCount%20passing-brightgreen"
     Set-Content -Path $readmePath -Value $content -NoNewline
     Write-Verbose "Updated test badge: $passedCount passing"
 }
@@ -170,7 +170,7 @@ switch ($Type) {
     }
     'Full' {
         Write-Verbose 'Executing full build pipeline...'
-        task .  BuildModule, CopyLibFiles, ModuleImport, RunTests, UpdateTestBadge
+        task .  BuildModule, ModuleImport, RunTests, UpdateTestBadge
     }
     default {
         throw "Invalid build type specified. Use 'Local' or 'Full'."
