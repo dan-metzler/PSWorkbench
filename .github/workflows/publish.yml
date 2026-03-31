@@ -33,7 +33,7 @@ jobs:
 
       - name: Zip output
         shell: pwsh
-        run: Compress-Archive -Path .\Output\YOUR_MODULE_NAME -DestinationPath .\YOUR_MODULE_NAME-${{ github.ref_name }}.zip
+        run: Compress-Archive -Path .\Output\PSWorkbench -DestinationPath .\PSWorkbench-${{ github.ref_name }}.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -41,11 +41,11 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           generate_release_notes: true
-          files: YOUR_MODULE_NAME-${{ github.ref_name }}.zip
+          files: PSWorkbench-${{ github.ref_name }}.zip
 
       - name: Publish to PowerShell Gallery
         if: ${{ success() && env.PSGALLERY_API_KEY != '' }}
         shell: pwsh
         run: |
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Publish-Module -Path .\Output\YOUR_MODULE_NAME -NuGetApiKey $env:PSGALLERY_API_KEY -ErrorAction Stop
+          Publish-Module -Path .\Output\PSWorkbench -NuGetApiKey $env:PSGALLERY_API_KEY -ErrorAction Stop
