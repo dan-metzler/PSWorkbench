@@ -1,0 +1,51 @@
+name: Build and Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # required so git describe can see tags
+
+      - name: Install build dependencies
+        shell: pwsh
+        run: .\Install-Requirements.ps1
+
+      - name: Run full build
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          Invoke-Build -File .\.build.ps1 -Type Full -Version $version 2>&1
+
+      - name: Zip output
+        shell: pwsh
+        run: Compress-Archive -Path .\Output\YOUR_MODULE_NAME -DestinationPath .\YOUR_MODULE_NAME-${{ github.ref_name }}.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          files: YOUR_MODULE_NAME-${{ github.ref_name }}.zip
+
+      - name: Publish to PowerShell Gallery
+        if: ${{ success() && env.PSGALLERY_API_KEY != '' }}
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Publish-Module -Path .\Output\YOUR_MODULE_NAME -NuGetApiKey $env:PSGALLERY_API_KEY -ErrorAction Stop
