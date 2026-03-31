@@ -2,6 +2,17 @@ Describe "Resolve-ADGroupMember" {
     BeforeAll {
         . "$PSScriptRoot\..\..\Source\Public\Resolve-ADGroupMember.ps1"
 
+        # Stub the AD exception type so mocks can throw it and the function's type check resolves
+        if (-not ('Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException' -as [type])) {
+            Add-Type -TypeDefinition @"
+namespace Microsoft.ActiveDirectory.Management {
+    public class ADIdentityNotFoundException : System.Exception {
+        public ADIdentityNotFoundException(string message) : base(message) {}
+    }
+}
+"@
+        }
+
         # Stubs allow Pester to mock these without requiring the ActiveDirectory module.
         # Parameters must be declared so ParameterFilter assertions can inspect splatted calls.
         function Get-ADGroup {
