@@ -1,6 +1,6 @@
 Describe "Get-ADBulkUserHashtable" {
     BeforeAll {
-        . "$PSScriptRoot\..\Source\Public\Get-ADBulkUserHashtable.ps1"
+        . "$PSScriptRoot\..\..\Source\Public\Get-ADBulkUserHashtable.ps1"
 
         Mock Write-Warning {}
 

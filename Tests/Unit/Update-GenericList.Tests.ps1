@@ -1,6 +1,6 @@
 Describe "Update-GenericList" {
     BeforeAll {
-        . "$PSScriptRoot\..\Source\Public\Update-GenericList.ps1"
+        . "$PSScriptRoot\..\..\Source\Public\Update-GenericList.ps1"
     }
 
     Context "Parameter Validation" {

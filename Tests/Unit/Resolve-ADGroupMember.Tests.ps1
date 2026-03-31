@@ -1,7 +1,7 @@
 Describe "Resolve-ADGroupMember" {
     BeforeAll {
         # Import the function for testing
-        . "$PSScriptRoot\..\Source\Public\Resolve-ADGroupMember.ps1"
+        . "$PSScriptRoot\..\..\Source\Public\Resolve-ADGroupMember.ps1"
     }
 
     Context "Parameter Validation" {
