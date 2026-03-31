@@ -33,7 +33,6 @@ param(
 #Requires -Module InvokeBuild
 
 Import-Module InvokeBuild
-. "$PSScriptRoot\Build\BuildFunctions.ps1"
 
 # ============================================================================
 # Script-Scoped Variables
@@ -78,7 +77,7 @@ task ModuleImport BuildModule, {
 
     Remove-Module -Name $script:moduleName -Force -ErrorAction SilentlyContinue
     Import-Module -Name $getPsdFile.FullName -Force -ErrorAction Stop
-    Write-Verbose "Imported module: $script:moduleName" -Verbose
+    Write-Verbose "Imported module: $script:moduleName"
 }
 
 # ============================================================================
@@ -90,7 +89,7 @@ task ModuleImport BuildModule, {
 
 task GenerateMarkdownDocs ModuleImport, {
     Import-Module platyPS -ErrorAction Stop
-    Write-Verbose 'Generating Function Markdown Documentation...' -Verbose
+    Write-Verbose 'Generating Function Markdown Documentation...'
 
     $docsPath = "$PSScriptRoot\Docs"
     if (-not (Test-Path -Path $docsPath -PathType Container)) {
@@ -99,7 +98,7 @@ task GenerateMarkdownDocs ModuleImport, {
 
     $result = New-MarkdownHelp -Module $script:moduleName -OutputFolder $docsPath -Force
     if ($result) {
-        Write-Verbose 'Done.' -Verbose
+        Write-Verbose 'Done.'
     }
     else {
         throw 'New-MarkdownHelp did not produce output. Check that the module exports at least one function.'
@@ -149,11 +148,11 @@ task RunTests ModuleImport, {
 
 switch ($Type) {
     'Local' {
-        Write-Verbose 'Executing local build pipeline...' -Verbose
+        Write-Verbose 'Executing local build pipeline...'
         task . BuildModule, ModuleImport, GenerateMarkdownDocs
     }
     'Full' {
-        Write-Verbose 'Executing full build pipeline...' -Verbose
+        Write-Verbose 'Executing full build pipeline...'
         task .  BuildModule, CopyLibFiles, ModuleImport, RunTests
     }
     default {
