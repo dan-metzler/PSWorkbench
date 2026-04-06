@@ -3,7 +3,7 @@
 Describe "Install-Certificate" {
 
     BeforeAll {
-        . "$PSScriptRoot\..\..\Source\Public\Install-CATCertificate.ps1"
+        . "$PSScriptRoot\..\..\Source\Public\Install-Certificate.ps1"
 
         # Build a self-signed test certificate entirely in memory using .NET.
         # CertificateRequest requires .NET Framework 4.7.2+ (available on all modern
