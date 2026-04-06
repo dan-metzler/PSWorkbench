@@ -35,6 +35,26 @@ Describe "Install-Certificate" {
             $script:pfxPath,
             $script:testCert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $pfxPasswordPlain)
         )
+
+        # Helper: removes the test cert from CurrentUser\TrustedPeople so each test starts clean.
+        # Must be defined inside BeforeAll so it is available in the run phase (not just discovery).
+        function script:Remove-TestCertFromStore {
+            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new($script:storeName, $script:storeLocation)
+            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+            $store.Certificates |
+            Where-Object { $_.Thumbprint -eq $script:testCert.Thumbprint } |
+            ForEach-Object { $store.Remove($_) }
+            $store.Close()
+        }
+
+        # Helper: returns $true if the test cert is currently in CurrentUser\TrustedPeople
+        function script:Test-CertInStore {
+            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new($script:storeName, $script:storeLocation)
+            $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadOnly)
+            $found = $store.Certificates | Where-Object { $_.Thumbprint -eq $script:testCert.Thumbprint }
+            $store.Close()
+            return ($null -ne $found -and @($found).Count -gt 0)
+        }
     }
 
     AfterAll {
@@ -47,25 +67,6 @@ Describe "Install-Certificate" {
         $store.Close()
 
         Remove-Item -Path $TestDrive -Recurse -Force -ErrorAction SilentlyContinue
-    }
-
-    # Helper: removes the test cert from CurrentUser\TrustedPeople so each test starts clean
-    function Remove-TestCertFromStore {
-        $store = [System.Security.Cryptography.X509Certificates.X509Store]::new($script:storeName, $script:storeLocation)
-        $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-        $store.Certificates |
-        Where-Object { $_.Thumbprint -eq $script:testCert.Thumbprint } |
-        ForEach-Object { $store.Remove($_) }
-        $store.Close()
-    }
-
-    # Helper: returns $true if the test cert is currently in CurrentUser\TrustedPeople
-    function Test-CertInStore {
-        $store = [System.Security.Cryptography.X509Certificates.X509Store]::new($script:storeName, $script:storeLocation)
-        $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadOnly)
-        $found = $store.Certificates | Where-Object { $_.Thumbprint -eq $script:testCert.Thumbprint }
-        $store.Close()
-        return ($null -ne $found -and @($found).Count -gt 0)
     }
 
     # -------------------------------------------------------------------
