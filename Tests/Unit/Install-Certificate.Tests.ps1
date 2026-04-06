@@ -66,7 +66,6 @@ Describe "Install-Certificate" {
         ForEach-Object { $store.Remove($_) }
         $store.Close()
 
-        Remove-Item -Path $TestDrive -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     # -------------------------------------------------------------------
