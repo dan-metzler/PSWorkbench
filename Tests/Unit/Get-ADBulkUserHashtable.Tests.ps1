@@ -248,6 +248,37 @@ Describe "Get-ADBulkUserHashtable" {
     }
 
     # -----------------------------------------------------------------------
+    Context "No ADGlobalCatalog Provided" {
+        BeforeEach {
+            Mock Get-ADUser { return @() }
+        }
+
+        It "Does not make a second Get-ADUser call when ADGlobalCatalog is omitted" {
+            Get-ADBulkUserHashtable -UserList 'ghost1' -SearchBy 'SamAccountName'
+            Assert-MockCalled Get-ADUser -Times 1 -Scope It
+        }
+
+        It "Emits one warning per user not found when ADGlobalCatalog is omitted" {
+            Get-ADBulkUserHashtable -UserList 'ghost1', 'ghost2' -SearchBy 'SamAccountName'
+            Assert-MockCalled Write-Warning -Times 2 -Scope It
+        }
+
+        It "Returns null when no users found and ADGlobalCatalog is omitted" {
+            $result = Get-ADBulkUserHashtable -UserList 'ghost1' -SearchBy 'SamAccountName'
+            $result | Should -BeNullOrEmpty
+        }
+
+        It "Returns found users from primary even when some are missing and ADGlobalCatalog is omitted" {
+            $mockUser1 = New-MockADUser -SamAccountName 'user1'
+            Mock Get-ADUser { return @($mockUser1) }
+
+            $result = Get-ADBulkUserHashtable -UserList 'user1', 'ghost1' -SearchBy 'SamAccountName'
+            $result | Should -Not -BeNullOrEmpty
+            $result.Keys | Should -Contain 'user1'
+        }
+    }
+
+    # -----------------------------------------------------------------------
     Context "Properties Parameter" {
         BeforeEach {
             Mock Get-ADUser { return @() }

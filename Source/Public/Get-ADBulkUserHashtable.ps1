@@ -89,10 +89,10 @@ function Get-ADBulkUserHashtable {
         foreach ($inputValue in $UserList) {
             $inputAttributeMap[$inputValue] = switch -Regex ($inputValue) {
                 '^\s*(?i:(CN|OU|DC|O|L|ST|C)=)' { 'DistinguishedName'; break }
-                '^[^@\s]+@[^\s]+$'               { 'UserPrincipalName'; break }
-                '^\d+$'                          { 'EmployeeID'; break }
-                '\s'                             { 'DisplayName'; break }
-                default                          { 'SamAccountName' }
+                '^[^@\s]+@[^\s]+$' { 'UserPrincipalName'; break }
+                '^\d+$' { 'EmployeeID'; break }
+                '\s' { 'DisplayName'; break }
+                default { 'SamAccountName' }
             }
         }
     }
@@ -160,47 +160,55 @@ function Get-ADBulkUserHashtable {
     if ($hashtable.Count -ne $UserList.Count) {
         # Use the input-tracking map (not the hashtable) to find which inputs didn't resolve to a user
         $notFoundUsers = $UserList | Where-Object { -not $searchInputToUser.ContainsKey($_) }
-        Write-Verbose "$($notFoundUsers.Count) users were not found in Default Active Directory, searching global catalog..."
 
-        # for users not found in the original search we need a sub search against the global catalog, we can reuse the same parameters but need to change the server and ldap filter
-        if ($SearchBy -eq 'Auto') {
-            $notFoundUsersLdapFilter = "(|" + ($notFoundUsers | ForEach-Object { "($($ldapAttributeMap[$inputAttributeMap[$_]])=$_)" }) + ")"
+        if (-not $ADGlobalCatalog) {
+            foreach ($user in $notFoundUsers) {
+                Write-Warning "User not found in ($env:USERDNSDOMAIN): $user"
+            }
         }
         else {
-            $notFoundUsersLdapFilter = "(|" + ($notFoundUsers | ForEach-Object { "($ldapAttribute=$_)" }) + ")"
-        }
+            Write-Verbose "$($notFoundUsers.Count) users were not found in Default Active Directory, searching global catalog..."
 
-        $getUserParams['Server'] = $ADGlobalCatalog
-        $getUserParams['LDAPFilter'] = $notFoundUsersLdapFilter
-
-        $userBackupDetailsList = @(Get-ADUser @getUserParams)
-
-        # add the backup results to the hashtable, nothing added if the userBackupDetailsList is empty
-        $backupSearchInputToUser = @{}
-        for ($i = 0; $i -lt $userBackupDetailsList.Count; $i++) {
-            $currentUser = $userBackupDetailsList[$i]
-            # Find which input value(s) match this user from backup search - same Auto-mode attribute detection
-            $matchingInputs = $notFoundUsers | Where-Object {
-                $attr = if ($SearchBy -eq 'Auto') { $inputAttributeMap[$_] } else { $SearchBy }
-                $currentUser.$attr -eq $_
+            # for users not found in the original search we need a sub search against the global catalog, we can reuse the same parameters but need to change the server and ldap filter
+            if ($SearchBy -eq 'Auto') {
+                $notFoundUsersLdapFilter = "(|" + ($notFoundUsers | ForEach-Object { "($($ldapAttributeMap[$inputAttributeMap[$_]])=$_)" }) + ")"
             }
-            foreach ($input in $matchingInputs) {
-                $backupSearchInputToUser[$input] = $currentUser
+            else {
+                $notFoundUsersLdapFilter = "(|" + ($notFoundUsers | ForEach-Object { "($ldapAttribute=$_)" }) + ")"
             }
-        }
 
-        # add the backup results keyed by SamAccountName
-        foreach ($inputValue in $notFoundUsers) {
-            if ($backupSearchInputToUser.ContainsKey($inputValue)) {
-                $hashtable[$backupSearchInputToUser[$inputValue].SamAccountName] = $backupSearchInputToUser[$inputValue]
+            $getUserParams['Server'] = $ADGlobalCatalog
+            $getUserParams['LDAPFilter'] = $notFoundUsersLdapFilter
+
+            $userBackupDetailsList = @(Get-ADUser @getUserParams)
+
+            # add the backup results to the hashtable, nothing added if the userBackupDetailsList is empty
+            $backupSearchInputToUser = @{}
+            for ($i = 0; $i -lt $userBackupDetailsList.Count; $i++) {
+                $currentUser = $userBackupDetailsList[$i]
+                # Find which input value(s) match this user from backup search - same Auto-mode attribute detection
+                $matchingInputs = $notFoundUsers | Where-Object {
+                    $attr = if ($SearchBy -eq 'Auto') { $inputAttributeMap[$_] } else { $SearchBy }
+                    $currentUser.$attr -eq $_
+                }
+                foreach ($inputItem in $matchingInputs) {
+                    $backupSearchInputToUser[$inputItem] = $currentUser
+                }
             }
-        }
 
-        # Check if there are still users not found after backup search
-        $stillNotFoundUsers = $notFoundUsers | Where-Object { -not $backupSearchInputToUser.ContainsKey($_) }
-        if ($stillNotFoundUsers.Count -gt 0) {
-            foreach ($user in $stillNotFoundUsers) {
-                Write-Warning "User not found in ($env:USERDNSDOMAIN) or ($ADGlobalCatalog): $user"
+            # add the backup results keyed by SamAccountName
+            foreach ($inputValue in $notFoundUsers) {
+                if ($backupSearchInputToUser.ContainsKey($inputValue)) {
+                    $hashtable[$backupSearchInputToUser[$inputValue].SamAccountName] = $backupSearchInputToUser[$inputValue]
+                }
+            }
+
+            # Check if there are still users not found after backup search
+            $stillNotFoundUsers = $notFoundUsers | Where-Object { -not $backupSearchInputToUser.ContainsKey($_) }
+            if ($stillNotFoundUsers.Count -gt 0) {
+                foreach ($user in $stillNotFoundUsers) {
+                    Write-Warning "User not found in ($env:USERDNSDOMAIN) or ($ADGlobalCatalog): $user"
+                }
             }
         }
     }
