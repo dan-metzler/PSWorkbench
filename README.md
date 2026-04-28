@@ -9,7 +9,7 @@ General utils module using all of the most performant methods to be imported in 
 
 [build]:https://github.com/dan-metzler/PSWorkbench/actions/workflows/publish.yml/badge.svg
 [build-site]:https://github.com/dan-metzler/PSWorkbench/actions/workflows/publish.yml
-[tests]:https://img.shields.io/badge/tests-109%20passing-brightgreen
+[tests]:https://img.shields.io/badge/tests-152%20passing-brightgreen
 [psgallery]:https://img.shields.io/powershellgallery/v/PSWorkbench.svg
 [ps-site]:https://www.powershellgallery.com/packages/PSWorkbench
 [downloads]:https://img.shields.io/powershellgallery/dt/PSWorkbench.svg?color=blue
