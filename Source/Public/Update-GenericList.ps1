@@ -46,13 +46,6 @@ function Update-GenericList {
     .NOTES
         Author: https://github.com/dan-metzler
         PowerShellVersion: PowerShell 5.1 or Later Recommended
-
-        Features:
-        - Flexible input sanitization with multiple processing options
-        - Parameter validation prevents conflicting case conversion options
-        - Efficient processing using .NET collections and regex
-        - Verbose logging for processing operations performed
-        - Support for empty collections and null handling
     #>
 
     [CmdletBinding()]
