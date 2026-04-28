@@ -72,13 +72,13 @@ Describe "Install-Certificate" {
     Context "Parameter Validation" {
         # -------------------------------------------------------------------
 
-        It "throws when CertificatePath is not provided" {
-            { Install-Certificate -CertificateStore $script:testStore -ErrorAction Stop } |
+        It "throws when CertificatePath is empty" {
+            { Install-Certificate -CertificatePath "" -CertificateStore $script:testStore -ErrorAction Stop } |
             Should -Throw
         }
 
-        It "throws when CertificateStore is not provided" {
-            { Install-Certificate -CertificatePath $script:cerPath -ErrorAction Stop } |
+        It "throws when CertificateStore is empty" {
+            { Install-Certificate -CertificatePath $script:cerPath -CertificateStore "" -ErrorAction Stop } |
             Should -Throw
         }
 
